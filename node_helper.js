@@ -41,6 +41,7 @@ module.exports = NodeHelper.create({
         request(options, function(error, response, body) {
             if (error) throw new Error(error);
             var result = JSON.parse(body);
+            //  var items = result.slice(0,6); // Does NOT slice the result as it does in line 78. Confused!
             // console.log(response.statusCode); // for checking
             self.getCurrent();
             self.sendSocketNotification('WEATHER_RESULT', result);
@@ -50,38 +51,38 @@ module.exports = NodeHelper.create({
     },
 
     getCurrent: function(url) {
-      var self = this;
-      var options = {
-  method: 'GET',
-  url: 'https://api.climacell.co/v3/weather/nowcast',
-  qs: {
-    apikey: this.config.apiKey,
-    fields: [
-        'temp',
-        'feels_like',
-        'precipitation',
-        'wind_speed',
-        'wind_direction',
-        'humidity',
-        'weather_code'
-    ],
-    unit_system: this.config.tempUnits,
-    lat: this.config.lat,
-    lon: this.config.lon
-  }
-};
-request(options, function (error, response, body) {
-  if (error) throw new Error(error);
-  //var current = []; //this.current[0] instead of just this.current
-  var result = JSON.parse(body);
-  var items = result.slice(0, 11);
-  //current.push(items);
+        var self = this;
+        var options = {
+            method: 'GET',
+            url: 'https://api.climacell.co/v3/weather/nowcast',
+            qs: {
+                apikey: this.config.apiKey,
+                fields: [
+                    'temp',
+                    'feels_like',
+                    'precipitation',
+                    'wind_speed',
+                    'wind_direction',
+                    'humidity',
+                    'weather_code'
+                ],
+                unit_system: this.config.tempUnits,
+                lat: this.config.lat,
+                lon: this.config.lon
+            }
+        };
+        request(options, function(error, response, body) {
+            if (error) throw new Error(error);
+            //var current = []; //this.current[0] instead of just this.current
+            var result = JSON.parse(body);
+            var items = result.slice(0, 1); // Works as expected, returning only the first item in the array
+            //current.push(items);
 
-   console.log(response.statusCode); // for checking
-  self.sendSocketNotification('CURRENT_RESULT', items);
-//  console.log(result);
-});
-},
+            console.log(response.statusCode); // for checking
+            self.sendSocketNotification('CURRENT_RESULT', items);
+            //  console.log(result);
+        });
+    },
 
     socketNotificationReceived: function(notification, payload) {
         if (notification === 'GET_WEATHER') {
