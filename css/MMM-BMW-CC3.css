@@ -18,17 +18,10 @@
    margin-bottom: -10px;
 }
 
-.MMM-BMW-CC .current {
-  color: #FFFFFF;               /* text forecast color. Default is white. */
+.MMM-BMW-CC .now {
+  color: #FFFFFF;               /* Current text color. Default is white. */
   font-family: Modern Antiqua, cursive;
 /*  font-size: .6em; */
-}
-
-.MMM-BMW-CC .summary {
-  color: #FFFFFF;               /* text forecast color. Default is white. */
-  font-family: Muli;
-/*  font-size: .6em; */
- /* display: none; */          /* uncomment to hide */
 }
 
 .MMM-BMW-CC .daily {
