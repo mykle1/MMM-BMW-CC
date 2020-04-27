@@ -1,11 +1,13 @@
 ## MMM-BMW-CC
 
-**Bugger My Weather**  Now using the free ClimaCell api
+**Bugger My Weather**  
+
+Now using the free ClimaCell api
 
 ## Same church, different pew
 
 * Due to Darksky discontinuing its free api I moved to ClimaCell
-* The data is a bit different but you get 1000 calls a month!
+* The data is a bit different but you get 30000 calls a month!
 
 ## Good-bye bottom_bar (Well, not really)
 
