@@ -69,12 +69,18 @@ Module.register("MMM-BMW-CC", {
             wrapper.appendChild(header);
         }
 
+
+
+       if (this.current) {
+
         var current = this.current;
         var now = document.createElement("div");
         now.classList.add("small", "bright", "now");
         now.innerHTML =
 
-            this.config.ownTitle + " &nbsp &nbsp " +
+            this.config.ownTitle + " " +
+
+            current[0].weather_code.value.replace("_"," ") + " &nbsp &nbsp " +
 
             "<img class = image src=./modules/MMM-BMW-CC/icons/" + current[0].weather_code.value + ".png>" +
             "  &nbsp " +
@@ -96,17 +102,22 @@ Module.register("MMM-BMW-CC", {
             current[0].humidity.units;
 
         wrapper.appendChild(now);
+      }
 
+        // https://devhints.io/moment (Good to have on hand when using moment)
 
-        // console.log(moment(forecast[0].observation_time.value).format('ddd'));
-        // https://devhints.io/moment
+        // if the data date is the same as today then today's forecast says "today" See line 120
+        if (moment(forecast[0].observation_time.value).format('ddd') == moment().format('ddd')){
+        var today = "Today"
+        }
 
         // daily names, high/low and icons
         var daily = document.createElement("div");
         daily.classList.add("small", "bright", "daily");
         daily.innerHTML =
 
-            moment(forecast[0].observation_time.value).format('ddd') + " &nbsp" + "<img class = image src=./modules/MMM-BMW-CC/icons/" + forecast[0].weather_code.value + ".png>" + " &nbsp" + Math.round(forecast[0].temp[1].max.value) + "/" + Math.round(forecast[0].temp[0].min.value) + " &nbsp &nbsp  &nbsp &nbsp &nbsp" +
+            // First day of 7 day forecast will always say 'Today' instead of Fri, Mon, etc.. See line 110
+            today + " &nbsp" + "<img class = image src=./modules/MMM-BMW-CC/icons/" + forecast[0].weather_code.value + ".png>" + " &nbsp" + Math.round(forecast[0].temp[1].max.value) + "/" + Math.round(forecast[0].temp[0].min.value) + " &nbsp &nbsp  &nbsp &nbsp &nbsp" +
 
 
             moment(forecast[1].observation_time.value).format('ddd') + " &nbsp" + "<img class = image src=./modules/MMM-BMW-CC/icons/" + forecast[1].weather_code.value + ".png>" + " &nbsp" + Math.round(forecast[1].temp[1].max.value) + "/" + Math.round(forecast[1].temp[0].min.value) + " &nbsp &nbsp  &nbsp &nbsp &nbsp" +
@@ -151,13 +162,13 @@ Module.register("MMM-BMW-CC", {
 
     processWeather: function(data) {
         this.forecast = data;
-        // console.log(this.forecast);
-        this.loaded = true;
+        console.log(this.forecast);
+      //   this.loaded = true; Can't use this here. Tries to load the data before the next process function loads
     },
 
     processCurrent: function(data) {
         this.current = data;
-        // console.log(this.current);
+         console.log(this.current);
         this.loaded = true;
     },
 
