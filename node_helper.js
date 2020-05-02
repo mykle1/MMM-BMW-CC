@@ -41,10 +41,10 @@ module.exports = NodeHelper.create({
         request(options, function(error, response, body) {
             if (error) throw new Error(error);
             var result = JSON.parse(body);
-            //  var items = result.slice(0,6); // Does NOT slice the result as it does in line 78. Confused!
+             var items = result.slice(0,7); // Start at 0, give me 7 objects
             // console.log(response.statusCode); // for checking
             self.getCurrent();
-            self.sendSocketNotification('WEATHER_RESULT', result);
+            self.sendSocketNotification('WEATHER_RESULT', items);
             // console.log(body);
         });
 
@@ -75,9 +75,7 @@ module.exports = NodeHelper.create({
             if (error) throw new Error(error);
             //var current = []; //this.current[0] instead of just this.current
             var result = JSON.parse(body);
-            var items = result.slice(0, 1); // Works as expected, returning only the first item in the array
-            //current.push(items);
-
+            var items = result.slice(0, 1); // // Start at 0, give me 1 object from the array
             console.log(response.statusCode); // for checking
             self.sendSocketNotification('CURRENT_RESULT', items);
             //  console.log(result);
