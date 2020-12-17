@@ -40,12 +40,12 @@ module.exports = NodeHelper.create({
 
         request(options, function(error, response, body) {
             if (error) throw new Error(error);
-            var result = JSON.parse(body);
-             var items = result.slice(0,7); // Start at 0, give me 7 objects
-            // console.log(response.statusCode); // for checking
+            var result = JSON.parse(body); 
+             var items = result.slice(0,7);
+             
             self.getCurrent();
             self.sendSocketNotification('WEATHER_RESULT', items);
-            // console.log(body);
+             
         });
 
     },
@@ -73,12 +73,9 @@ module.exports = NodeHelper.create({
         };
         request(options, function(error, response, body) {
             if (error) throw new Error(error);
-            //var current = []; //this.current[0] instead of just this.current
             var result = JSON.parse(body);
-            var items = result.slice(0, 1); // // Start at 0, give me 1 object from the array
-            console.log(response.statusCode); // for checking
-            self.sendSocketNotification('CURRENT_RESULT', items);
-            //  console.log(result);
+            var item = result[0]; 
+            self.sendSocketNotification('CURRENT_RESULT', item); 
         });
     },
 
