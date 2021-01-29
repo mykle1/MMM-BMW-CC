@@ -1,13 +1,11 @@
 /* Magic Mirror
- * Module: MMM-BMW-CC
+ * Module: MMM-BMW=CC
  *
  * By Mykle1
  *
- * MIT Licensed
  */
 const NodeHelper = require('node_helper');
 const request = require('request');
-
 
 module.exports = NodeHelper.create({
 
@@ -15,76 +13,42 @@ module.exports = NodeHelper.create({
         console.log("Starting node_helper for: " + this.name);
     },
 
-    getWeather: function(url) {
-        var options = {
+    getWeather: function(url) { //daily
+        request({
             method: 'GET',
-            url: 'https://api.climacell.co/v3/weather/forecast/daily',
-            qs: {
-                apikey: this.config.apiKey,
-                fields: [
-                    'temp',
-                    'feels_like',
-                    'precipitation',
-                    'wind_speed',
-                    'wind_direction',
-                    'humidity',
-                    'weather_code'
-                ],
-                unit_system: this.config.tempUnits,
-                lat: this.config.lat,
-                lon: this.config.lon
-            }
-        };
-
-        var self = this;
-
-        request(options, function(error, response, body) {
-            if (error) throw new Error(error);
-            var result = JSON.parse(body); 
-             var items = result.slice(0,7);
-             
+            url: "https://data.climacell.co/v4/timelines?timesteps=1d&units=" + this.config.tempUnits + "&location=" + this.config.lat + "," + this.config.lon + "&fields=temperatureMax,temperatureMin,precipitationType,weatherCode&apikey=" + this.config.apiKey
+        }, (error, response, body) => {
+            var result = JSON.parse(body).data;
+            //var items = result.slice(0,7); // Start at 0, give me 7 objects
+            // console.log(result); // check
+            var self = this;
             self.getCurrent();
-            self.sendSocketNotification('WEATHER_RESULT', items);
-             
+            self.sendSocketNotification('WEATHER_RESULT', result);
         });
-
     },
 
-    getCurrent: function(url) {
-        var self = this;
-        var options = {
+    getCurrent: function(url) { // hourly
+        request({
             method: 'GET',
-            url: 'https://api.climacell.co/v3/weather/nowcast',
-            qs: {
-                apikey: this.config.apiKey,
-                fields: [
-                    'temp',
-                    'feels_like',
-                    'precipitation',
-                    'wind_speed',
-                    'wind_direction',
-                    'humidity',
-                    'weather_code'
-                ],
-                unit_system: this.config.tempUnits,
-                lat: this.config.lat,
-                lon: this.config.lon
-            }
-        };
-        request(options, function(error, response, body) {
-            if (error) throw new Error(error);
-            var result = JSON.parse(body);
-            var item = result[0]; 
-            self.sendSocketNotification('CURRENT_RESULT', item); 
+            url: "https://data.climacell.co/v4/timelines?timesteps=1h&units=" + this.config.tempUnits + "&location=" + this.config.lat + "," + this.config.lon + "&fields=temperature,temperatureApparent,precipitationType,humidity,windSpeed,windDirection,weatherCode&apikey=" + this.config.apiKey
+        }, (error, response, body) => {
+            var result = JSON.parse(body).data;
+            //var items = result.slice(0,1); // Start at 0, give me 7 objects
+            // console.log(result); // check
+            var self = this;
+            self.sendSocketNotification('CURRENT_RESULT', result);
         });
     },
 
     socketNotificationReceived: function(notification, payload) {
+        if (notification === "CONFIG") {
+            this.config = payload;
+        }
         if (notification === 'GET_WEATHER') {
             this.getWeather(payload);
         }
-        if (notification === 'CONFIG') {
-            this.config = payload;
+        if (notification === 'GET_CURRENT') {
+            this.getCurrent(payload);
         }
     }
 });

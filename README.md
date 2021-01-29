@@ -2,7 +2,11 @@
 
 **Bugger My Weather**  
 
-Now using the free ClimaCell api
+Now using version 4 of the free ClimaCell api.
+
+You will need a new api key (as of 1/28.21) to use this updated module.
+
+Version 3 has been deprecated by Climacell .
 
 ## Same church, different pew
 
@@ -47,11 +51,11 @@ Now using the free ClimaCell api
     config: {
         apiKey: "Your FREE api key", // Get at https://www.climacell.co/weather-api/pricing/
         ownTitle: "Current Conditions",
-        tempUnits: "us", // us = F or si = C
+        tempUnits: "imperial", // imperial or metric
         lat: '43.574794', // Your latitude
         lon: '-77.112454', // Your longitude
         css: "2", // 1-6
-        playSounds: "no",
+        playSounds: "no", // Temporarily disabled!!!
         useHeader: false, // true if you want a header
         header: "Your header",
         maxWidth: "100%",
@@ -65,5 +69,7 @@ Now using the free ClimaCell api
 * The original MMM-BMW is still available. However, it requires an older WunderGround API key
 
 * MMM-BMW-DS still works if you have a Darksky api key (These will expire eventually)
+
+* Remember, you need a new API key. V3 keys will not work. Re-register at Climacell for new key
 
 ## Language support is not supported by the new api

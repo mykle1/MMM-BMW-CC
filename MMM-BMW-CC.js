@@ -8,7 +8,7 @@ Module.register("MMM-BMW-CC", {
     // Module config defaults.
     defaults: {
         apiKey: "", // Get FREE API key from ClimaCell.com
-        tempUnits: "", // us or si
+        tempUnits: "imperial",
         lat: "", // Latitude
         lon: "", // Longitude
         css: "1", // 1=default, 2=Clean, 3=Lord of the Rings, 4=handwriting, 5=Julee, 6=Englebert
@@ -20,7 +20,38 @@ Module.register("MMM-BMW-CC", {
         animationSpeed: 3000,
         initialLoadDelay: 4250,
         retryDelay: 2500,
-        updateInterval: 5 * 60 * 1000,
+        updateInterval: 30 * 60 * 1000,
+
+        // icon mapping
+        weatherCode: {
+            "0": "unknown",
+            "1000": "clear",
+            "1001": "cloudy",
+            "1100": "mostlyclear",
+            "1101": "partly_cloudy",
+            "1102": "mostly_cloudy",
+            "2000": "fog",
+            "2100": "fog",
+            "3000": "wind",
+            "3001": "wind",
+            "3002": "wind",
+            "4000": "drizzle",
+            "4001": "rain",
+            "4200": "rain",
+            "4201": "rain",
+            "5000": "snow",
+            "5001": "flurries",
+            "5100": "snow",
+            "5101": "snow_heavy",
+            "6000": "sleet",
+            "6001": "sleet",
+            "6200": "sleet",
+            "6201": "sleet",
+            "7000": "sleet",
+            "7101": "sleet",
+            "7102": "sleet",
+            "8000": "tstorms"
+        },
     },
 
     // Gets correct css file from config.js
@@ -57,7 +88,7 @@ Module.register("MMM-BMW-CC", {
         wrapper.style.maxWidth = this.config.maxWidth;
 
         if (!this.loaded) {
-            wrapper.innerHTML = "Climacell data . . .";
+            wrapper.innerHTML = "Climacell API v4 . . .";
             wrapper.classList.add("bright", "light", "small");
             return wrapper;
         }
@@ -68,74 +99,120 @@ Module.register("MMM-BMW-CC", {
             header.innerHTML = this.config.header;
             wrapper.appendChild(header);
         }
+
+        // current conditions
         if (this.current) {
-            var current = this.current;
+            var current = this.current.timelines[0].intervals[0].values;
+
             var now = document.createElement("div");
             now.classList.add("small", "bright", "now");
             now.innerHTML =
-                this.config.ownTitle + " &nbsp &nbsp " +
-                "<img class = image src=modules/MMM-BMW-CC/icons/" + current.weather_code.value + ".png>" +
-                "  &nbsp " +
-                Math.round(current.temp.value) + "°" +
-                current.temp.units + " &nbsp &nbsp &nbsp &nbsp " +
-                " Feels like " + Math.round(current.feels_like.value) +
+                this.config.ownTitle + " &nbsp" +
+                "<img class = image src=modules/MMM-BMW-CC/icons/" + this.config.weatherCode[current.weatherCode] + ".png>" +
+                "&nbsp" +
+                Math.round(current.temperature) + "°" +
+                " &nbsp &nbsp &nbsp &nbsp " +
+                " Feels like " + Math.round(current.temperatureApparent) +
                 "°" +
-                current.feels_like.units +
-                " &nbsp &nbsp &nbsp &nbsp Wind @ " + Math.round(current.wind_speed.value) +
-                current.wind_speed.units + " &nbsp &nbsp &nbsp &nbsp " +
-                "Humidity @ " + Math.round(current.humidity.value) +
-                current.humidity.units;
+                " &nbsp &nbsp &nbsp &nbsp Wind @ " + Math.round(current.windSpeed) +
+                " &nbsp &nbsp &nbsp &nbsp " +
+                "Humidity @ " + Math.round(current.humidity) +
+                "%";
 
             wrapper.appendChild(now);
         }
 
+        // Daily forecast for 7 days
         var Daily = document.createElement("div");
         Daily.classList.add("small", "bright", "daily");
+        Daily.innerHTML =
 
-        for (i = 0; i < forecast.length; i++) {
-            var forecasts = forecast[i];
+            // Day 1 / Today
+            moment(forecast.timelines[0].intervals[0].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[0].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[0].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[0].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp" +
 
-            var now = moment().format('YYYY-MM-DD');
-            var aday = moment(forecasts.observation_time.value).format('ddd');
-            var cday = moment(forecasts.observation_time.value).format('DD-MM-YYYY');
-            var dday = forecasts.observation_time.value;
-            var startdate = moment(current.observation_time.value).format("DD-MM-YYYY");
-            var icon = "<img class = image src=modules/MMM-BMW-CC/icons/" + forecasts.weather_code.value + ".png>";
-            var high = Math.round(forecasts.temp[1].max.value);
-            var low = Math.round(forecasts.temp[0].min.value);
-            var ftoday = "Today " + icon + " " + high + "/" + low + " &nbsp &nbsp &nbsp &nbsp &nbsp";
-            var total = aday + " " + icon + " " + high + "/" + low + " &nbsp &nbsp &nbsp &nbsp &nbsp";
-            var TotalDay = (startdate == cday) ? ftoday : total;
-            Daily.innerHTML += TotalDay;
-        }
+            // Day 2
+            moment(forecast.timelines[0].intervals[1].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[1].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[1].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[1].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp" +
+
+            // Day 3
+            moment(forecast.timelines[0].intervals[2].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[2].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[2].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[2].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp" +
+
+            // Day 4
+            moment(forecast.timelines[0].intervals[3].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[3].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[3].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[3].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp" +
+
+            // Day 5
+            moment(forecast.timelines[0].intervals[4].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[4].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[4].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[4].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp" +
+
+            // Day 6
+            moment(forecast.timelines[0].intervals[5].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[5].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[5].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[5].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp" +
+
+            // Day 7
+            moment(forecast.timelines[0].intervals[6].startTime).format('ddd') + " " +
+            "<img class = image src=modules/MMM-BMW-CC/icons/" +
+            this.config.weatherCode[forecast.timelines[0].intervals[6].values.weatherCode] + ".png>" + " " +
+            Math.round(forecast.timelines[0].intervals[6].values.temperatureMax) + "/" +
+            Math.round(forecast.timelines[0].intervals[6].values.temperatureMin) +
+            " &nbsp &nbsp &nbsp &nbsp &nbsp";
 
         wrapper.appendChild(Daily);
 
+        // Considering doing away with this option. TBD
         // Sound for rain, wind, thunder, etc.
-        if (forecast[0].weather_code.value == "rain" && this.config.playSounds == "yes") {
-            var sound = new Audio()
-            sound.src = 'modules/MMM-BMW-CC/sounds/rain.mp3'
-            sound.play()
-        } else if (forecast[0].weather_code.value == "thunder" && this.config.playSounds == "yes") {
-            var sound = new Audio();
-            sound.src = 'modules/MMM-BMW-CC/sounds/thunder.mp3';
-            sound.play();
-        } else if (forecast[0].weather_code.value == "wind" && this.config.playSounds == "yes") {
-            var sound = new Audio();
-            sound.src = 'modules/MMM-BMW-CC/sounds/wind.mp3';
-            sound.play();
-        }
+        //  if (forecast[0].weather_code.value == "rain" && this.config.playSounds == "yes") {
+        //      var sound = new Audio()
+        //      sound.src = 'modules/MMM-BMW-CC/sounds/rain.mp3'
+        //      sound.play()
+        //  } else if (forecast[0].weather_code.value == "thunder" && this.config.playSounds == "yes") {
+        //      var sound = new Audio();
+        //      sound.src = 'modules/MMM-BMW-CC/sounds/thunder.mp3';
+        //      sound.play();
+        //  } else if (forecast[0].weather_code.value == "wind" && this.config.playSounds == "yes") {
+        //      var sound = new Audio();
+        //      sound.src = 'modules/MMM-BMW-CC/sounds/wind.mp3';
+        //      sound.play();
+        //  }
 
         return wrapper;
     },
 
     processWeather: function(data) {
-        this.forecast = data
+        this.forecast = data;
+        //    console.log(this.forecast);
     },
 
     processCurrent: function(data) {
         this.current = data;
         this.loaded = true;
+        // console.log(this.current);
     },
 
     scheduleUpdate: function() {
